@@ -6,9 +6,11 @@ import databaseConfig from '../config/database.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubscriptionModule } from '../subscription/subscription.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from '../task/tasks.module';
 
 @Module({
   imports: [
+    TasksModule,
     SubscriptionModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
