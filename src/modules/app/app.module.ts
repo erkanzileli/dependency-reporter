@@ -5,10 +5,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import databaseConfig from '../config/database.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubscriptionModule } from '../subscription/subscription.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     SubscriptionModule,
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       load: [databaseConfig],
       isGlobal: true,
