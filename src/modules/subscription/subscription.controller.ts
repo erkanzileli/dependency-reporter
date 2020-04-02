@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseFilters } from '@nestjs/common';
 import { SubscriptionsService } from './subscriptions.service';
 import { Subscription } from './subscription.entity';
 import { CreateSubscriptionDto } from './dto/create-subscription';
+import { TypeOrmExceptionFilter } from 'src/filters/typeorm-exception.filter';
 
 @Controller({ path: 'subscription' })
 export class SubscriptionController {
@@ -13,6 +14,7 @@ export class SubscriptionController {
   }
 
   @Post()
+  @UseFilters(TypeOrmExceptionFilter)
   create(
     @Body() createSubscriptionDto: CreateSubscriptionDto,
   ): Promise<Subscription> {

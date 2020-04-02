@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import { IsEmail, IsNotEmpty, IsUrl, IsDate } from 'class-validator';
+import { Entity, Column, PrimaryGeneratedColumn, Index, CreateDateColumn } from 'typeorm';
+import { IsEmail, IsNotEmpty, IsUrl } from 'class-validator';
 
 @Entity()
+@Index(['email', 'repository'], { unique: true })
 export class Subscription {
   @PrimaryGeneratedColumn()
   id: number;
@@ -17,7 +18,6 @@ export class Subscription {
   @IsNotEmpty()
   repository: string;
 
-  @Column({ default: new Date() })
-  @IsDate()
+  @CreateDateColumn({ type: 'timestamp with time zone' })
   createdAt: Date;
 }
