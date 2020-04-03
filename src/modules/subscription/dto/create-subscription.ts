@@ -1,12 +1,17 @@
-import { IsEmail, IsNotEmpty, IsUrl } from 'class-validator';
+/* eslint-disable @typescript-eslint/camelcase */
+import { IsEmail, IsNotEmpty, IsUrl, Matches } from 'class-validator';
 
 export class CreateSubscriptionDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  @IsUrl({ require_protocol: true, protocols: ['https'] })
+  @Matches(
+    /https:\/\/github.com\/[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}\/[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}/,
+    {
+      message: 'repository must be a valid github repository',
+    },
+  )
   @IsNotEmpty()
   repository: string;
 }

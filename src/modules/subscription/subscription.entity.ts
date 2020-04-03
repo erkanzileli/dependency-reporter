@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, Index, CreateDateColumn } from 'typeorm';
+/* eslint-disable @typescript-eslint/camelcase */
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  Index,
+  CreateDateColumn,
+} from 'typeorm';
 import { IsEmail, IsNotEmpty, IsUrl } from 'class-validator';
 
 @Entity()
@@ -13,8 +20,7 @@ export class Subscription {
   email: string;
 
   @Column()
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  @IsUrl({ require_protocol: true, protocols: ['https'] })
+  @IsUrl()
   @IsNotEmpty()
   repository: string;
 
