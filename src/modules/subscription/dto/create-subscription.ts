@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { IsEmail, IsNotEmpty, IsUrl, Matches } from 'class-validator';
+import { IsEmail, IsNotEmpty, Matches } from 'class-validator';
 
 export class CreateSubscriptionDto {
   @IsEmail()

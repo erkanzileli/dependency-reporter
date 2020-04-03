@@ -3,6 +3,8 @@ import { SubscriptionsService } from './subscriptions.service';
 import { Subscription } from './subscription.entity';
 import { CreateSubscriptionDto } from './dto/create-subscription';
 import { TypeOrmExceptionFilter } from 'src/filters/typeorm-exception.filter';
+import { ErrorExceptionFilter } from 'src/filters/error-exception.filter';
+import { Report } from '../reporter/dto/report';
 
 @Controller({ path: 'subscription' })
 export class SubscriptionController {
@@ -15,9 +17,10 @@ export class SubscriptionController {
 
   @Post()
   @UseFilters(TypeOrmExceptionFilter)
+  @UseFilters(ErrorExceptionFilter)
   create(
     @Body() createSubscriptionDto: CreateSubscriptionDto,
-  ): Promise<Subscription> {
+  ): Promise<Subscription | { result: Report[] }> {
     return this.subscriptionsService.create(createSubscriptionDto);
   }
 }
