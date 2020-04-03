@@ -18,7 +18,8 @@ export class ErrorExceptionFilter implements ExceptionFilter {
       message: exception.message,
       method: request.method,
       // todo: send stack if node-env is not production
-      // stack: exception.stack,
+      stack:
+        process.env.NODE_ENV !== 'production' ? exception.stack : undefined,
       timestamp: new Date().toISOString(),
       path: request.url,
     });
