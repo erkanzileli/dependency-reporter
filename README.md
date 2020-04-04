@@ -39,6 +39,8 @@ Send POST request to `/subscription` endpoint with the body below
 
 Then you could have successfully registered the subscription list
 
+[Sample mail template](https://github.com/erkanzileli/dependency-reporter/blob/master/sample.pdf) is available in root directory
+
 ## Test
 
 ```bash
