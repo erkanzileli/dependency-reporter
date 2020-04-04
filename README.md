@@ -26,6 +26,19 @@ $ yarn start:dev
 $ yarn start:prod
 ```
 
+## Usage
+
+Send POST request to `/subscription` endpoint with the body below
+
+```json
+{
+  "email": "erkanzileli@gmail.com",
+  "repository": "https://github.com/erkanzileli/graphql-backend"
+}
+```
+
+Then you could have successfully registered the subscription list
+
 ## Test
 
 ```bash
