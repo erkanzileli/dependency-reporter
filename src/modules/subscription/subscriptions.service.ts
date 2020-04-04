@@ -18,14 +18,13 @@ export class SubscriptionsService {
 
   async create(
     createSubscriptionDto: CreateSubscriptionDto,
-  ): Promise<Subscription | { result: Report[] }> {
+  ): Promise<Subscription | { result: Report }> {
     const subscription = new Subscription();
     subscription.email = createSubscriptionDto.email;
     subscription.repository = createSubscriptionDto.repository;
     const reports = await this.reporterService.createReport(
       subscription.repository,
     );
-    console.log(reports);
     await this.subscriptionsRepository.save(subscription);
     this.tasksService.addCronJob(subscription);
     return { ...subscription, result: reports };

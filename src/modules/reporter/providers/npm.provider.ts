@@ -1,8 +1,11 @@
 import { ReportProvider } from './report.interface';
-import { HttpService, Injectable, Logger } from '@nestjs/common';
+import { HttpService, Injectable, Logger, HttpStatus } from '@nestjs/common';
 
 interface PackageJSON {
   dependencies: {
+    [pkg: string]: string;
+  };
+  devDependencies: {
     [pkg: string]: string;
   };
 }
@@ -22,24 +25,43 @@ export class NpmProvider implements ReportProvider {
 
   async createReport(downloadUrl: string): Promise<any> {
     const packageJson: PackageJSON = await this.getDependencyFile(downloadUrl);
-    if (
-      !packageJson.dependencies ||
-      Object.keys(packageJson.dependencies).length < 1
-    ) {
+    packageJson.dependencies = packageJson.dependencies || {};
+    packageJson.devDependencies = packageJson.devDependencies || {};
+
+    const dependencies = Object.assign(
+      {},
+      packageJson.dependencies,
+      packageJson.devDependencies,
+    );
+
+    if (Object.keys(dependencies).length < 1) {
       throw new Error(
-        "Specified repository doesn't have any dependencies in package.json file!",
+        "Specified repository doesn't have any dependencies or devDependencies in package.json file!",
       );
     }
-    return Promise.all(
-      Object.keys(packageJson.dependencies).map(async pkg => {
-        const version = packageJson.dependencies[pkg];
-        return {
-          package: pkg,
-          actual: version,
-          available: await this.isUpdateAvailable(pkg, version),
-        };
-      }),
-    );
+
+    return {
+      dependencies: await Promise.all(
+        Object.keys(packageJson.dependencies).map(async pkg => {
+          const version = packageJson.dependencies[pkg];
+          return {
+            package: pkg,
+            actual: version,
+            available: await this.isUpdateAvailable(pkg, version),
+          };
+        }),
+      ),
+      devDependencies: await Promise.all(
+        Object.keys(packageJson.devDependencies).map(async pkg => {
+          const version = packageJson.devDependencies[pkg];
+          return {
+            package: pkg,
+            actual: version,
+            available: await this.isUpdateAvailable(pkg, version),
+          };
+        }),
+      ),
+    };
   }
 
   async getDependencyFile(downloadUrl: string): Promise<PackageJSON> {
@@ -49,7 +71,15 @@ export class NpmProvider implements ReportProvider {
   }
 
   async isUpdateAvailable(pkg: string, version: string): Promise<any> {
-    const latestVersion: NodePackage = await this.getLatestVersion(pkg);
+    let latestVersion: NodePackage;
+    try {
+      latestVersion = await this.getLatestVersion(pkg);
+    } catch (error) {
+      if (error.response && error.response.status === HttpStatus.NOT_FOUND) {
+        return undefined;
+      }
+      this.logger.error(error);
+    }
     if (latestVersion.version !== version) {
       return latestVersion.version;
     }

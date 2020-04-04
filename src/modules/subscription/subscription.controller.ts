@@ -7,6 +7,7 @@ import { ErrorExceptionFilter } from 'src/filters/error-exception.filter';
 import { Report } from '../reporter/dto/report';
 
 @Controller({ path: 'subscription' })
+@UseFilters(ErrorExceptionFilter)
 export class SubscriptionController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
@@ -17,10 +18,9 @@ export class SubscriptionController {
 
   @Post()
   @UseFilters(TypeOrmExceptionFilter)
-  @UseFilters(ErrorExceptionFilter)
   create(
     @Body() createSubscriptionDto: CreateSubscriptionDto,
-  ): Promise<Subscription | { result: Report[] }> {
+  ): Promise<Subscription | { result: Report }> {
     return this.subscriptionsService.create(createSubscriptionDto);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, HttpService, Logger, HttpStatus } from '@nestjs/common';
 import { NpmProvider } from './providers/npm.provider';
 import { Report } from './dto/report';
+import { ComposerProvider } from './providers/composer.provider';
 
 interface Content {
   name: string;
@@ -17,19 +18,6 @@ interface Content {
   };
 }
 
-interface ComposerJSON {
-  require: {
-    [pkg: string]: string;
-  };
-}
-interface ComposerPkg {
-  package: {
-    versions: {
-      [version: string]: string;
-    };
-  };
-}
-
 @Injectable()
 export class ReporterService {
   private readonly logger = new Logger(ReporterService.name);
@@ -37,9 +25,10 @@ export class ReporterService {
   constructor(
     private httpService: HttpService,
     private npmReportProducer: NpmProvider,
+    private composerReportProvider: ComposerProvider,
   ) {}
 
-  public async createReport(repositoryUrl: string): Promise<Report[]> {
+  public async createReport(repositoryUrl: string): Promise<Report> {
     const [, , , owner, repository] = repositoryUrl.split('/');
 
     const contents = await this.getRepositoryContents(owner, repository);
@@ -48,6 +37,9 @@ export class ReporterService {
 
     if (type === 'NPM') {
       return this.npmReportProducer.createReport(downloadUrl);
+    }
+    if (type === 'COMPOSER') {
+      return this.composerReportProvider.createReport(downloadUrl);
     }
   }
 
