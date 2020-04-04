@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubscriptionModule } from '../subscription/subscription.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from '../task/tasks.module';
+import emailConfig from '../config/email.config';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { TasksModule } from '../task/tasks.module';
     SubscriptionModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
-      load: [databaseConfig],
+      load: [databaseConfig, emailConfig],
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({

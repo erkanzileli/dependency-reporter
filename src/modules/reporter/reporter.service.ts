@@ -28,7 +28,7 @@ export class ReporterService {
     private composerReportProvider: ComposerProvider,
   ) {}
 
-  public async createReport(repositoryUrl: string): Promise<Report> {
+  public async createReport(repositoryUrl: string): Promise<Report[]> {
     const [, , , owner, repository] = repositoryUrl.split('/');
 
     const contents = await this.getRepositoryContents(owner, repository);

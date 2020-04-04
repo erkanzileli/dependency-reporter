@@ -8,6 +8,15 @@ export class TasksService {
 
   constructor(private scheduler: SchedulerRegistry) {}
 
+  addIfNotExist(cron: string, job: () => any, name: string) {
+    try {
+      const cronjob = this.scheduler.getCronJob(name);
+    } catch (error) {
+      console.log(error)
+      this.addCronJob(cron, job, name);
+    }
+  }
+
   addCronJob(cron: string, job: () => any, name: string) {
     const cronjob = new CronJob(cron, job);
     this.scheduler.addCronJob(name, cronjob);

@@ -20,7 +20,7 @@ export class SubscriptionController {
   @UseFilters(TypeOrmExceptionFilter)
   create(
     @Body() createSubscriptionDto: CreateSubscriptionDto,
-  ): Promise<Subscription | { result: Report }> {
-    return this.subscriptionsService.create(createSubscriptionDto);
+  ): Promise<Subscription | { result: Report[] }> {
+    return this.subscriptionsService.createAndGetReport(createSubscriptionDto);
   }
 }

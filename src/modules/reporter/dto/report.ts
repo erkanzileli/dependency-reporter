@@ -1,10 +1,5 @@
-class Dependencies {
+export class Report {
   package: string;
   actual: string;
   available: string;
-}
-
-export class Report {
-  dependencies: Dependencies;
-  devDependencies: Dependencies;
 }

@@ -40,28 +40,16 @@ export class NpmProvider implements ReportProvider {
       );
     }
 
-    return {
-      dependencies: await Promise.all(
-        Object.keys(packageJson.dependencies).map(async pkg => {
-          const version = packageJson.dependencies[pkg];
-          return {
-            package: pkg,
-            actual: version,
-            available: await this.isUpdateAvailable(pkg, version),
-          };
-        }),
-      ),
-      devDependencies: await Promise.all(
-        Object.keys(packageJson.devDependencies).map(async pkg => {
-          const version = packageJson.devDependencies[pkg];
-          return {
-            package: pkg,
-            actual: version,
-            available: await this.isUpdateAvailable(pkg, version),
-          };
-        }),
-      ),
-    };
+    return Promise.all(
+      Object.keys(dependencies).map(async pkg => {
+        const version = dependencies[pkg];
+        return {
+          package: pkg,
+          actual: version,
+          available: await this.isUpdateAvailable(pkg, version),
+        };
+      }),
+    );
   }
 
   async getDependencyFile(downloadUrl: string): Promise<PackageJSON> {

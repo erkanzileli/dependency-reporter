@@ -18,34 +18,55 @@ export class SubscriptionsService {
     private readonly emailService: EmailService,
   ) {}
 
-  async create(
+  async createAndGetReport(
     createSubscriptionDto: CreateSubscriptionDto,
-  ): Promise<Subscription | { result: Report }> {
+  ): Promise<Subscription | { result: Report[] }> {
+    // create report
+    const reports = await this.getReport(createSubscriptionDto.repository);
+
+    // if its reportable then save the subscription
+    const subscription = await this.findOrCreate(createSubscriptionDto);
+
+    this.schedule(subscription);
+
+    // return result
+    return { ...subscription, result: reports };
+  }
+
+  getReport(repository: string): Promise<Report[]> {
+    return this.reporterService.createReport(repository);
+  }
+
+  schedule(subscription: Subscription) {
+    const { cron, job, name } = this.createCronJob(subscription);
+    this.tasksService.addIfNotExist(cron, job, name);
+  }
+
+  create(createSubscriptionDto: CreateSubscriptionDto) {
     const subscription = new Subscription();
     subscription.email = createSubscriptionDto.email;
     subscription.repository = createSubscriptionDto.repository;
+    return this.subscriptionsRepository.save(subscription);
+  }
 
-    // create report
-    const reports = await this.reporterService.createReport(
-      subscription.repository,
-    );
-
-    // if its reportable then save the subscription
-    await this.subscriptionsRepository.save(subscription);
-
-    // create cronjob
-    const { cron, job, name } = this.createCronJob(subscription);
-    this.tasksService.addCronJob(cron, job, name);
-    // return result
-    return { ...subscription, result: reports };
+  async findOrCreate(createSubscriptionDto: CreateSubscriptionDto) {
+    const subscription = await this.subscriptionsRepository.findOne({
+      where: {
+        email: createSubscriptionDto.email,
+        repository: createSubscriptionDto.repository,
+      },
+    });
+    if (subscription) {
+      return subscription;
+    } else {
+      return this.create(createSubscriptionDto);
+    }
   }
 
   createCronJob(
     subscription: Subscription,
   ): { cron: string; job: () => any; name: string } {
     const createdAt = subscription.createdAt;
-    createdAt.setSeconds(createdAt.getSeconds() + 15);
-    // createdAt.setHours(createdAt.getHours() + 3)
     const cron =
       createdAt.getSeconds() +
       ' ' +
@@ -54,11 +75,15 @@ export class SubscriptionsService {
       createdAt.getHours() +
       ' * * *';
 
-    const job = () => {
-      // const report = await this.reporterService.createReport(
-      //   subscription.repository,
-      // );
-      this.emailService.sendEmail(subscription.email, '', '');
+    const job = async () => {
+      const report = await this.reporterService.createReport(
+        subscription.repository,
+      );
+      this.emailService.sendEmail(
+        subscription.email,
+        'Daily dependency update check on ' + subscription.repository,
+        JSON.stringify(report, null, 4),
+      );
     };
     const name = `${subscription.email}+${subscription.repository}`;
     return { cron, job, name };
